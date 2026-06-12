@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LAOLA Tippspiel SR LJU Ranking</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #1d4ed8;
+      --accent-2: #0f766e;
+      --shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+    }
+
+    .updated-at {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .table-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .table-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .table-head h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .table-head span {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    thead tr {
+      background: #f8fafc;
+    }
+
+    tbody tr {
+      border-top: 1px solid var(--border-soft);
+      transition: background-color 0.18s ease;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .rank-row-alt {
+      background: rgba(241, 245, 249, 0.45);
+    }
+
+    .rank-cell {
+      text-align: center;
+    }
+
+    .rank-header {
+      text-align: center;
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      flex: 0 0 auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .metric {
+      display: inline-flex;
+      align-items: center;
+      min-width: 54px;
+      justify-content: center;
+      border-radius: 9999px;
+      padding: 5px 10px;
+      font-weight: 700;
+    }
+
+    .metric-points {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .metric-win {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 28px 12px 48px; }
+      .table-head { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Tippspiel ranking</p>
+      <h1>LAOLA Tippspiel SR LJU Ranking</h1>
+    </header>
+
+    <p class="updated-at">Updated: 2026-06-12 14:14:07 CEST (Europe/Ljubljana)</p>
+
+    <section class="table-card">
+      <div class="table-head">
+        <h2>Leaderboard</h2>
+        <span>Ljubljana</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th class="rank-header px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">RANK</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">PLAYER</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">TIPS</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">POINTS</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">WIN PERCENTAGE</th></tr>
+          </thead>
+          <tbody>
+            <tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">1</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#059669">TŠ</span>
+                      <span class="font-medium text-slate-800">Tjaž</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">2</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#ea580c">HM</span>
+                      <span class="font-medium text-slate-800">Hugo</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">3</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">MK</span>
+                      <span class="font-medium text-slate-800">Mia</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">4</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">RR</span>
+                      <span class="font-medium text-slate-800">Rok</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">5</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#dc2626">MV</span>
+                      <span class="font-medium text-slate-800">Matija</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">6</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">DJ</span>
+                      <span class="font-medium text-slate-800">Danijel</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">5</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">7</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">KG</span>
+                      <span class="font-medium text-slate-800">Klemen</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">4</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">8</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0f766e">TK</span>
+                      <span class="font-medium text-slate-800">Timur</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">4</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">9</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#dc2626">GR</span>
+                      <span class="font-medium text-slate-800">Gregor</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">4</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">10</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0f766e">SP</span>
+                      <span class="font-medium text-slate-800">Stefan</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">4</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">11</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#e11d48">SG</span>
+                      <span class="font-medium text-slate-800">Stefano</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">12</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">AL</span>
+                      <span class="font-medium text-slate-800">Andraž</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">13</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#dc2626">JP</span>
+                      <span class="font-medium text-slate-800">Jernej</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">14</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">AM</span>
+                      <span class="font-medium text-slate-800">Anže</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">100</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">15</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0f766e">IT</span>
+                      <span class="font-medium text-slate-800">Ilija</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">16</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#059669">LF</span>
+                      <span class="font-medium text-slate-800">Luka</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">17</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#ea580c">DJ</span>
+                      <span class="font-medium text-slate-800">Domen</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">18</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">TP</span>
+                      <span class="font-medium text-slate-800">Tomaž</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">19</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">MS</span>
+                      <span class="font-medium text-slate-800">Milutin</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">20</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">RK</span>
+                      <span class="font-medium text-slate-800">Rok</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">21</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#059669">KS</span>
+                      <span class="font-medium text-slate-800">Kevin</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">22</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#e11d48">NP</span>
+                      <span class="font-medium text-slate-800">Natasa</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">23</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">NB</span>
+                      <span class="font-medium text-slate-800">Nik</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">24</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">UP</span>
+                      <span class="font-medium text-slate-800">Urh</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">3</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">25</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#dc2626">NS</span>
+                      <span class="font-medium text-slate-800">Nikola</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">2</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">26</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#dc2626">KK</span>
+                      <span class="font-medium text-slate-800">Kristjan</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">2</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">27</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#e11d48">DM</span>
+                      <span class="font-medium text-slate-800">David</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">2</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">28</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">SK</span>
+                      <span class="font-medium text-slate-800">Sara</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">29</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">ZG</span>
+                      <span class="font-medium text-slate-800">Zoran</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">30</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0f766e">UP</span>
+                      <span class="font-medium text-slate-800">Uros</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">31</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">TK</span>
+                      <span class="font-medium text-slate-800">Tilen</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">32</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#e11d48">UK</span>
+                      <span class="font-medium text-slate-800">Urban</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">33</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0891b2">BB</span>
+                      <span class="font-medium text-slate-800">Boris</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">34</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">ZF</span>
+                      <span class="font-medium text-slate-800">Zoran</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">35</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#0f766e">ED</span>
+                      <span class="font-medium text-slate-800">Ensar</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">2</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">1</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">50</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">36</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#e11d48">NN</span>
+                      <span class="font-medium text-slate-800">Nejc</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">0</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">0</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">0</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">37</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">SŠ</span>
+                      <span class="font-medium text-slate-800">Sašo</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">0</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">0</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">0</span></td>
+                </tr>
+<tr class="rank-row rank-row-alt">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">38</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#7c3aed">AJ</span>
+                      <span class="font-medium text-slate-800">Ademir</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">0</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">0</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">0</span></td>
+                </tr>
+<tr class="rank-row ">
+                  <td class="rank-cell px-4 py-4 text-slate-500 tabular-nums font-medium">39</td>
+                  <td class="px-4 py-4">
+                    <div class="player-cell">
+                      <span class="avatar" style="background:#2563eb">RZ</span>
+                      <span class="font-medium text-slate-800">Rok</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 tabular-nums">0</td>
+                  <td class="px-4 py-4 text-slate-800 tabular-nums font-semibold"><span class="metric metric-points">0</span></td>
+                  <td class="px-4 py-4 text-slate-700 tabular-nums"><span class="metric metric-win">0</span></td>
+                </tr>
+          </tbody>
+        </table>
+       </div>
+     </section>
+
+   </main>
+ </body>
+ </html>
+ 
