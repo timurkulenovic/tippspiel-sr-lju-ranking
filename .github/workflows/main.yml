@@ -3,7 +3,7 @@ name: Tippspiel Pipeline
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *" # adjust as needed (UTC)
+    - cron: "15 * * * *" # adjust as needed (UTC)
 
 permissions:
   contents: write
