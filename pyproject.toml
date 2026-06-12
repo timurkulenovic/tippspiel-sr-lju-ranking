@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tippspiel-crawler"
+version = "1.0.0"
+description = "Crawler for LAOLA1 Tippspiel group ranking"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "crawlee[playwright]>=1.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.0.0",
+]
+
+[project.scripts]
+tippspiel-crawl = "tippspiel_crawler.crawl_ranking:main"
+tippspiel-export-html = "tippspiel_crawler.export_ranking_html:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
