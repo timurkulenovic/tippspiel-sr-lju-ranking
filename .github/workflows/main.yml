@@ -1,0 +1,51 @@
+name: Tippspiel Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *" # adjust as needed (UTC)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+          python -m playwright install chromium
+
+      - name: Create config.toml from secrets
+        shell: bash
+        run: |
+          cat > config.toml <<EOF
+          [auth]
+          email = "${{ secrets.TIPPSPIEL_AUTH_EMAIL }}"
+          password = "${{ secrets.TIPPSPIEL_AUTH_PASSWORD }}"
+          EOF
+
+      - name: Run crawler pipeline
+        shell: bash
+        run: |
+          chmod +x ./scripts/run_full_pipeline.sh
+          ./scripts/run_full_pipeline.sh
+
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ranking-ljubljana
+          path: |
+            index.html
+
+      - name: Cleanup config
+        if: always()
+        run: rm -f config.toml
