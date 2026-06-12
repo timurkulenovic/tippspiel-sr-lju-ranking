@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "*/5 * * * *" # adjust as needed (UTC)
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -40,9 +43,24 @@ jobs:
         env:
           CI: "true"
           TIMEOUT_MS: "120000"
+          HTML_FILE: "index.html"
         run: |
           chmod +x ./scripts/run_full_pipeline.sh
           ./scripts/run_full_pipeline.sh
+
+      - name: Commit and push index.html
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f index.html ]] && [[ -n "$(git status --porcelain -- index.html)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html
+            git commit -m "chore: update index.html"
+            git push
+          else
+            echo "No index.html changes to commit."
+          fi
 
       - name: Upload artifacts
         if: always()
@@ -51,7 +69,7 @@ jobs:
           name: ranking-${{ github.run_number }}
           path: |
             ranking.json
-            ranking-ljubljana.html
+            index.html
           retention-days: 30
 
       - name: Cleanup config
