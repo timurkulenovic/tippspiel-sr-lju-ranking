@@ -37,6 +37,9 @@ jobs:
 
       - name: Run crawler pipeline
         shell: bash
+        env:
+          CI: "true"
+          TIMEOUT_MS: "120000"
         run: |
           chmod +x ./scripts/run_full_pipeline.sh
           ./scripts/run_full_pipeline.sh

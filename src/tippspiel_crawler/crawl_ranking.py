@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import tomllib
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -198,6 +199,10 @@ async def run_crawl(config: CrawlConfig) -> dict:
     if config.debug_browser:
         # Slow motion makes UI interactions easier to visually inspect.
         launch_options["slow_mo"] = 250
+
+    # Disable sandbox in CI environments to avoid "Chromium sandboxing failed" errors.
+    if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
+        launch_options["args"] = ["--no-sandbox", "--disable-setuid-sandbox"]
 
     crawler = PlaywrightCrawler(
         headless=config.headless,
