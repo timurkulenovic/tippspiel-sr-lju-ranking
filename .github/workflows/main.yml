@@ -78,6 +78,7 @@ jobs:
           fi
 
           git commit -m "Update ljubljana_ranking.json"
+          git pull --rebase origin main
           git push
 
       - name: Cleanup config
