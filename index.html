@@ -141,7 +141,7 @@
 
   <script>
     (() => {
-      const DATA_PATH = "https://raw.githubusercontent.com/timurkulenovic/tippspiel-sr-lju-ranking/refs/heads/main/ljubljana_ranking.json";
+      const DATA_PATH = "https://raw.githubusercontent.com/timurkulenovic/tippspiel-sr-lju-ranking/main/ljubljana_ranking.json";
       const toggle = document.getElementById("bettorToggle");
       const labelAll = document.getElementById("toggleLabelAll");
       const labelBettors = document.getElementById("toggleLabelBettors");
@@ -218,7 +218,9 @@
         renderToggle();
       });
 
-      fetch(DATA_PATH)
+      const requestUrl = `${DATA_PATH}?cb=${Date.now()}`;
+
+      fetch(requestUrl, { cache: "no-store" })
         .then((r) => {
           if (!r.ok) throw new Error(`Failed to load ${DATA_PATH}: ${r.status}`);
           return r.json();
