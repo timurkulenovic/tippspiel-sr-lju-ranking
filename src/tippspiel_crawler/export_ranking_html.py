@@ -222,11 +222,23 @@ def prepare_report_payload(
 
     missing_signatures = settings.bettors - matched_bettors if prepared_rows else settings.bettors
     missing_bettors = [settings.bettor_labels.get(signature, signature) for signature in sorted(missing_signatures)]
+    betting_entry_fee = 15
+    betting_total = settings.bettor_count * betting_entry_fee
 
     return {
         "office": office_text.strip() or "All offices",
         "generatedAt": _to_ljubljana_timestamp(crawled_at),
         "bettorsCount": settings.bettor_count,
+        "bettingPool": {
+            "entryFee": betting_entry_fee,
+            "currency": "EUR",
+            "totalAmount": betting_total,
+            "prizes": {
+                "first": betting_total * 0.5,
+                "second": betting_total * 0.3,
+                "third": betting_total * 0.2,
+            },
+        },
         "missingBettors": missing_bettors,
         "rows": prepared_rows,
     }

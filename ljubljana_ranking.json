@@ -1,7 +1,17 @@
 {
   "office": "Ljubljana",
-  "generatedAt": "2026-06-14 12:01:22 CEST",
+  "generatedAt": "2026-06-14 12:19:50 CEST",
   "bettorsCount": 19,
+  "bettingPool": {
+    "entryFee": 15,
+    "currency": "EUR",
+    "totalAmount": 285,
+    "prizes": {
+      "first": 142.5,
+      "second": 85.5,
+      "third": 57.0
+    }
+  },
   "missingBettors": [
     "Brane (BS)",
     "Domen (DJ)",

@@ -189,13 +189,18 @@
         }).join("");
       };
 
-      const renderSummary = (bettorsCountValue) => {
-        const total = bettorsCountValue * 15;
+      const renderSummary = (bettorsCountValue, bettingPool) => {
+        const entryFee = Number(bettingPool?.entryFee ?? 15);
+        const total = Number(bettingPool?.totalAmount ?? (bettorsCountValue * entryFee));
+        const firstPrize = Number(bettingPool?.prizes?.first ?? (total * 0.5));
+        const secondPrize = Number(bettingPool?.prizes?.second ?? (total * 0.3));
+        const thirdPrize = Number(bettingPool?.prizes?.third ?? (total * 0.2));
+
         bettorsCount.textContent = String(bettorsCountValue);
         bettorsTotal.textContent = fmt(total);
-        prize1.textContent = fmt(total * 0.5);
-        prize2.textContent = fmt(total * 0.3);
-        prize3.textContent = fmt(total * 0.2);
+        prize1.textContent = fmt(firstPrize);
+        prize2.textContent = fmt(secondPrize);
+        prize3.textContent = fmt(thirdPrize);
       };
 
       const renderToggle = () => {
@@ -229,7 +234,7 @@
 
           const count = Number(payload.bettorsCount || 0);
           bettorsSummary.setAttribute("data-bettors-count", String(count));
-          renderSummary(count);
+          renderSummary(count, payload.bettingPool);
           renderToggle();
         })
         .catch((e) => {
