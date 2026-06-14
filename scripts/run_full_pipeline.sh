@@ -13,7 +13,7 @@ export PYTHONPATH="${REPO_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
 
 CONFIG_FILE="${CONFIG_FILE:-${REPO_ROOT}/config.toml}"
 RANKING_JSON="${RANKING_JSON:-${REPO_ROOT}/ranking.json}"
-HTML_FILE="${HTML_FILE:-${REPO_ROOT}/index.html}"
+REPORT_JSON="${REPORT_JSON:-${REPO_ROOT}/ljubljana_ranking.json}"
 OFFICE_FILTER="${OFFICE_FILTER:-Ljubljana}"
 TIMEOUT_MS="${TIMEOUT_MS:-90000}"
 
@@ -30,14 +30,14 @@ log "Step 1/2: crawling rankings into ${RANKING_JSON}"
   --out "$RANKING_JSON" \
   --timeout "$TIMEOUT_MS"
 
-log "Step 2/2: exporting ${OFFICE_FILTER} rankings to ${HTML_FILE}"
+log "Step 2/2: preparing ${OFFICE_FILTER} report data into ${REPORT_JSON}"
 $PYTHON_BIN -m tippspiel_crawler.export_ranking_html \
   --input "$RANKING_JSON" \
   --office "$OFFICE_FILTER" \
   --config-file "$CONFIG_FILE" \
-  --output "$HTML_FILE"
+  --output "$REPORT_JSON"
 
 
 log "Pipeline finished successfully"
-log "Artifacts: ${RANKING_JSON} | ${HTML_FILE}"
+log "Artifacts: ${RANKING_JSON} | ${REPORT_JSON}"
 
