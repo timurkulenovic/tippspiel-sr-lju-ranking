@@ -34,6 +34,7 @@ log "Step 2/2: exporting ${OFFICE_FILTER} rankings to ${HTML_FILE}"
 $PYTHON_BIN -m tippspiel_crawler.export_ranking_html \
   --input "$RANKING_JSON" \
   --office "$OFFICE_FILTER" \
+  --config-file "$CONFIG_FILE" \
   --output "$HTML_FILE"
 
 
