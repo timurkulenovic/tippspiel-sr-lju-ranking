@@ -208,8 +208,8 @@
         labelBettors.classList.toggle("active", bettorsOnly);
         toggle.classList.toggle("active", bettorsOnly);
         toggle.setAttribute("aria-checked", bettorsOnly ? "true" : "false");
-        missingSection.style.display = bettorsOnly ? "" : "none";
-        bettorsSummary.style.display = bettorsOnly ? "" : "none";
+        missingSection.style.display = bettorsOnly ? "block" : "none";
+        bettorsSummary.style.display = bettorsOnly ? "block" : "none";
         renderRows();
       };
 
