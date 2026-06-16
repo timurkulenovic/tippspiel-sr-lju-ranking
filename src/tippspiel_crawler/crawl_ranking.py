@@ -117,8 +117,22 @@ async def dismiss_cookie_banner(page) -> None:
                 continue
 
 
+async def dismiss_whats_new_popup(page, timeout_ms: int) -> None:
+    popup_button = page.locator("button.global-btn.group-predictions-whats-new__cta")
+    if await popup_button.count() == 0:
+        return
+
+    try:
+        await popup_button.first.click(timeout=min(timeout_ms, 3000))
+        await page.wait_for_timeout(300)
+    except Exception:
+        # Ignore intermittent UI timing issues and continue trying to read the table.
+        pass
+
+
 async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
     await dismiss_cookie_banner(page)
+    await dismiss_whats_new_popup(page, timeout_ms)
     try:
         await page.wait_for_selector("table tbody tr.row", timeout=timeout_ms)
     except Exception as exc:

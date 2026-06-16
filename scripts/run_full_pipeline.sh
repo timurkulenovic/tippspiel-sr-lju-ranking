@@ -28,7 +28,8 @@ log "Step 1/2: crawling rankings into ${RANKING_JSON}"
 "$PYTHON_BIN" -m tippspiel_crawler.crawl_ranking \
   --credentials-file "$CONFIG_FILE" \
   --out "$RANKING_JSON" \
-  --timeout "$TIMEOUT_MS"
+  --timeout "$TIMEOUT_MS" \
+  --headed
 
 log "Step 2/2: preparing ${OFFICE_FILTER} report data into ${REPORT_JSON}"
 $PYTHON_BIN -m tippspiel_crawler.export_ranking_html \
