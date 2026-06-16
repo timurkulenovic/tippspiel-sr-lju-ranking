@@ -16,6 +16,7 @@ RANKING_JSON="${RANKING_JSON:-${REPO_ROOT}/ranking.json}"
 REPORT_JSON="${REPORT_JSON:-${REPO_ROOT}/ljubljana_ranking.json}"
 OFFICE_FILTER="${OFFICE_FILTER:-Ljubljana}"
 TIMEOUT_MS="${TIMEOUT_MS:-90000}"
+HEADED_MODE="${HEADED_MODE:-auto}"
 
 log() {
   printf '\n[%s] %s\n' "$(date '+%H:%M:%S')" "$1"
@@ -24,12 +25,31 @@ log() {
 log "Using Python interpreter: ${PYTHON_BIN}"
 log "Using config file: ${CONFIG_FILE}"
 
+crawl_headed_flag=()
+case "${HEADED_MODE}" in
+  true)
+    crawl_headed_flag=(--headed)
+    ;;
+  false)
+    crawl_headed_flag=()
+    ;;
+  auto)
+    if [ -z "${CI:-}" ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
+      crawl_headed_flag=(--headed)
+    fi
+    ;;
+  *)
+    log "Invalid HEADED_MODE='${HEADED_MODE}'. Use: auto|true|false"
+    exit 1
+    ;;
+esac
+
 log "Step 1/2: crawling rankings into ${RANKING_JSON}"
 "$PYTHON_BIN" -m tippspiel_crawler.crawl_ranking \
   --credentials-file "$CONFIG_FILE" \
   --out "$RANKING_JSON" \
   --timeout "$TIMEOUT_MS" \
-  --headed
+  "${crawl_headed_flag[@]}"
 
 log "Step 2/2: preparing ${OFFICE_FILTER} report data into ${REPORT_JSON}"
 $PYTHON_BIN -m tippspiel_crawler.export_ranking_html \
