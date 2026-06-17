@@ -1,6 +1,6 @@
 {
   "office": "Ljubljana",
-  "generatedAt": "2026-06-17 13:36:28 CEST",
+  "generatedAt": "2026-06-17 18:07:03 CEST",
   "bettorsCount": 19,
   "bettingPool": {
     "entryFee": 15,
@@ -48,16 +48,6 @@
       "avatarColor": "#0891b2"
     },
     {
-      "playerDisplay": "Matija",
-      "tips": 20,
-      "points": 19,
-      "pointsInt": 19,
-      "winPercent": 55,
-      "isBettor": false,
-      "initials": "MV",
-      "avatarColor": "#dc2626"
-    },
-    {
       "playerDisplay": "Rok",
       "tips": 20,
       "points": 19,
@@ -66,6 +56,16 @@
       "isBettor": false,
       "initials": "RK",
       "avatarColor": "#2563eb"
+    },
+    {
+      "playerDisplay": "Matija",
+      "tips": 20,
+      "points": 19,
+      "pointsInt": 19,
+      "winPercent": 55,
+      "isBettor": false,
+      "initials": "MV",
+      "avatarColor": "#dc2626"
     },
     {
       "playerDisplay": "Tjaž",
@@ -88,16 +88,6 @@
       "avatarColor": "#ea580c"
     },
     {
-      "playerDisplay": "Nik",
-      "tips": 20,
-      "points": 17,
-      "pointsInt": 17,
-      "winPercent": 55,
-      "isBettor": true,
-      "initials": "NB",
-      "avatarColor": "#7c3aed"
-    },
-    {
       "playerDisplay": "Klemen",
       "tips": 20,
       "points": 17,
@@ -108,14 +98,14 @@
       "avatarColor": "#2563eb"
     },
     {
-      "playerDisplay": "Mia",
+      "playerDisplay": "Nik",
       "tips": 20,
       "points": 17,
       "pointsInt": 17,
-      "winPercent": 50,
-      "isBettor": false,
-      "initials": "MK",
-      "avatarColor": "#0891b2"
+      "winPercent": 55,
+      "isBettor": true,
+      "initials": "NB",
+      "avatarColor": "#7c3aed"
     },
     {
       "playerDisplay": "Kevin",
@@ -126,6 +116,16 @@
       "isBettor": true,
       "initials": "KS",
       "avatarColor": "#059669"
+    },
+    {
+      "playerDisplay": "Mia",
+      "tips": 20,
+      "points": 17,
+      "pointsInt": 17,
+      "winPercent": 50,
+      "isBettor": false,
+      "initials": "MK",
+      "avatarColor": "#0891b2"
     },
     {
       "playerDisplay": "Danijel",
@@ -168,16 +168,6 @@
       "avatarColor": "#0891b2"
     },
     {
-      "playerDisplay": "Gregor",
-      "tips": 20,
-      "points": 16,
-      "pointsInt": 16,
-      "winPercent": 50,
-      "isBettor": true,
-      "initials": "GP",
-      "avatarColor": "#dc2626"
-    },
-    {
       "playerDisplay": "Martin",
       "tips": 20,
       "points": 16,
@@ -186,6 +176,16 @@
       "isBettor": true,
       "initials": "MK",
       "avatarColor": "#ea580c"
+    },
+    {
+      "playerDisplay": "Gregor",
+      "tips": 20,
+      "points": 16,
+      "pointsInt": 16,
+      "winPercent": 50,
+      "isBettor": true,
+      "initials": "GP",
+      "avatarColor": "#dc2626"
     },
     {
       "playerDisplay": "Nikola",
@@ -228,16 +228,6 @@
       "avatarColor": "#0891b2"
     },
     {
-      "playerDisplay": "Stefan",
-      "tips": 20,
-      "points": 14,
-      "pointsInt": 14,
-      "winPercent": 50,
-      "isBettor": false,
-      "initials": "SP",
-      "avatarColor": "#0f766e"
-    },
-    {
       "playerDisplay": "Andraž",
       "tips": 20,
       "points": 14,
@@ -246,6 +236,16 @@
       "isBettor": true,
       "initials": "ADL",
       "avatarColor": "#2563eb"
+    },
+    {
+      "playerDisplay": "Stefan",
+      "tips": 20,
+      "points": 14,
+      "pointsInt": 14,
+      "winPercent": 50,
+      "isBettor": false,
+      "initials": "SP",
+      "avatarColor": "#0f766e"
     },
     {
       "playerDisplay": "Gregor",
@@ -288,16 +288,6 @@
       "avatarColor": "#7c3aed"
     },
     {
-      "playerDisplay": "Ensar",
-      "tips": 20,
-      "points": 13,
-      "pointsInt": 13,
-      "winPercent": 45,
-      "isBettor": true,
-      "initials": "ED",
-      "avatarColor": "#0f766e"
-    },
-    {
       "playerDisplay": "Tomaž",
       "tips": 20,
       "points": 13,
@@ -306,6 +296,16 @@
       "isBettor": false,
       "initials": "TP",
       "avatarColor": "#0891b2"
+    },
+    {
+      "playerDisplay": "Ensar",
+      "tips": 20,
+      "points": 13,
+      "pointsInt": 13,
+      "winPercent": 45,
+      "isBettor": true,
+      "initials": "ED",
+      "avatarColor": "#0f766e"
     },
     {
       "playerDisplay": "Ilija",
@@ -408,14 +408,14 @@
       "avatarColor": "#dc2626"
     },
     {
-      "playerDisplay": "Ademir",
+      "playerDisplay": "Sašo",
       "tips": 0,
       "points": 0,
       "pointsInt": -1,
       "winPercent": 0,
       "isBettor": false,
-      "initials": "AJ",
-      "avatarColor": "#7c3aed"
+      "initials": "SŠ",
+      "avatarColor": "#2563eb"
     },
     {
       "playerDisplay": "Rok",
@@ -428,6 +428,16 @@
       "avatarColor": "#2563eb"
     },
     {
+      "playerDisplay": "Ademir",
+      "tips": 0,
+      "points": 0,
+      "pointsInt": -1,
+      "winPercent": 0,
+      "isBettor": false,
+      "initials": "AJ",
+      "avatarColor": "#7c3aed"
+    },
+    {
       "playerDisplay": "Nejc",
       "tips": 0,
       "points": 0,
@@ -436,16 +446,6 @@
       "isBettor": false,
       "initials": "NBN",
       "avatarColor": "#e11d48"
-    },
-    {
-      "playerDisplay": "Sašo",
-      "tips": 0,
-      "points": 0,
-      "pointsInt": -1,
-      "winPercent": 0,
-      "isBettor": false,
-      "initials": "SŠ",
-      "avatarColor": "#2563eb"
     }
   ]
 }
