@@ -118,12 +118,13 @@ async def dismiss_cookie_banner(page) -> None:
 
 
 async def dismiss_whats_new_popup(page, timeout_ms: int) -> None:
-    popup_button = page.locator("button.global-btn.group-predictions-whats-new__cta")
+    popup_button = page.locator(".global-btn.group-predictions-whats-new__cta")
     if await popup_button.count() == 0:
         return
 
     try:
-        await popup_button.first.click(timeout=min(timeout_ms, 3000))
+        await popup_button.first.click(timeout=min(timeout_ms, 3000), force=True)
+        await page.locator(".popup-bg").first.wait_for(state="hidden", timeout=2000)
         await page.wait_for_timeout(300)
     except Exception:
         # Ignore intermittent UI timing issues and continue trying to read the table.
@@ -146,6 +147,7 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
     max_clicks = 100
     previous_count = await page.locator("table tbody tr.row").count()
     for _ in range(max_clicks):
+        await dismiss_whats_new_popup(page, timeout_ms)
         load_more = page.locator("div.btn-box button.global-sec-btn")
         if await load_more.count() == 0:
             break
@@ -154,7 +156,15 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
         if await button.is_disabled():
             break
 
-        await button.click(timeout=timeout_ms)
+        try:
+            await button.click(timeout=timeout_ms)
+        except Exception as exc:
+            # A popup can appear after initial table load and block pointer events.
+            await dismiss_whats_new_popup(page, timeout_ms)
+            try:
+                await button.click(timeout=min(timeout_ms, 5000))
+            except Exception:
+                raise exc
         await page.wait_for_timeout(300)
 
         current_count = await page.locator("table tbody tr.row").count()
