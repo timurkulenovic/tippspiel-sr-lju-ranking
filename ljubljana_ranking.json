@@ -1,6 +1,6 @@
 {
   "office": "Ljubljana",
-  "generatedAt": "2026-06-21 12:49:13 CEST",
+  "generatedAt": "2026-06-21 15:19:23 CEST",
   "bettorsCount": 19,
   "bettingPool": {
     "entryFee": 15,
@@ -258,16 +258,6 @@
       "avatarColor": "#0f766e"
     },
     {
-      "playerDisplay": "Nikola",
-      "tips": 36,
-      "points": 27,
-      "pointsInt": 27,
-      "winPercent": 53,
-      "isBettor": false,
-      "initials": "NS",
-      "avatarColor": "#dc2626"
-    },
-    {
       "playerDisplay": "Zoran",
       "tips": 36,
       "points": 27,
@@ -276,6 +266,16 @@
       "isBettor": true,
       "initials": "ZF",
       "avatarColor": "#7c3aed"
+    },
+    {
+      "playerDisplay": "Nikola",
+      "tips": 36,
+      "points": 27,
+      "pointsInt": 27,
+      "winPercent": 53,
+      "isBettor": false,
+      "initials": "NS",
+      "avatarColor": "#dc2626"
     },
     {
       "playerDisplay": "Milutin",
@@ -408,14 +408,14 @@
       "avatarColor": "#dc2626"
     },
     {
-      "playerDisplay": "Ademir",
+      "playerDisplay": "Rok",
       "tips": 0,
       "points": 0,
       "pointsInt": -1,
       "winPercent": 0,
       "isBettor": false,
-      "initials": "AJ",
-      "avatarColor": "#7c3aed"
+      "initials": "RZ",
+      "avatarColor": "#2563eb"
     },
     {
       "playerDisplay": "Sašo",
@@ -428,14 +428,14 @@
       "avatarColor": "#2563eb"
     },
     {
-      "playerDisplay": "Rok",
+      "playerDisplay": "Ademir",
       "tips": 0,
       "points": 0,
       "pointsInt": -1,
       "winPercent": 0,
       "isBettor": false,
-      "initials": "RZ",
-      "avatarColor": "#2563eb"
+      "initials": "AJ",
+      "avatarColor": "#7c3aed"
     },
     {
       "playerDisplay": "Nejc",
