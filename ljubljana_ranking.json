@@ -1,6 +1,6 @@
 {
   "office": "Ljubljana",
-  "generatedAt": "2026-06-28 16:17:51 CEST",
+  "generatedAt": "2026-06-28 18:38:23 CEST",
   "bettorsCount": 19,
   "bettingPool": {
     "entryFee": 15,
@@ -98,16 +98,6 @@
       "avatarColor": "#0f766e"
     },
     {
-      "playerDisplay": "Anže",
-      "tips": 72,
-      "points": 77,
-      "pointsInt": 77,
-      "winPercent": 65,
-      "isBettor": true,
-      "initials": "AM",
-      "avatarColor": "#7c3aed"
-    },
-    {
       "playerDisplay": "Mia",
       "tips": 72,
       "points": 77,
@@ -116,6 +106,16 @@
       "isBettor": false,
       "initials": "MK",
       "avatarColor": "#0891b2"
+    },
+    {
+      "playerDisplay": "Anže",
+      "tips": 72,
+      "points": 77,
+      "pointsInt": 77,
+      "winPercent": 65,
+      "isBettor": true,
+      "initials": "AM",
+      "avatarColor": "#7c3aed"
     },
     {
       "playerDisplay": "Urh",
@@ -418,16 +418,6 @@
       "avatarColor": "#dc2626"
     },
     {
-      "playerDisplay": "Nejc",
-      "tips": 0,
-      "points": 0,
-      "pointsInt": -1,
-      "winPercent": 0,
-      "isBettor": false,
-      "initials": "NBN",
-      "avatarColor": "#e11d48"
-    },
-    {
       "playerDisplay": "Ademir",
       "tips": 0,
       "points": 0,
@@ -436,6 +426,16 @@
       "isBettor": false,
       "initials": "AJ",
       "avatarColor": "#7c3aed"
+    },
+    {
+      "playerDisplay": "Nejc",
+      "tips": 0,
+      "points": 0,
+      "pointsInt": -1,
+      "winPercent": 0,
+      "isBettor": false,
+      "initials": "NBN",
+      "avatarColor": "#e11d48"
     },
     {
       "playerDisplay": "Sašo",
