@@ -1,6 +1,6 @@
 {
   "office": "Ljubljana",
-  "generatedAt": "2026-07-09 20:12:05 CEST",
+  "generatedAt": "2026-07-09 22:07:36 CEST",
   "bettorsCount": 20,
   "bettingPool": {
     "entryFee": 15,
@@ -418,14 +418,14 @@
       "avatarColor": "#dc2626"
     },
     {
-      "playerDisplay": "Sašo",
+      "playerDisplay": "Nejc",
       "tips": 0,
       "points": 0,
       "pointsInt": -1,
       "winPercent": 0,
       "isBettor": false,
-      "initials": "SŠ",
-      "avatarColor": "#2563eb"
+      "initials": "NBN",
+      "avatarColor": "#e11d48"
     },
     {
       "playerDisplay": "Ademir",
@@ -438,14 +438,14 @@
       "avatarColor": "#7c3aed"
     },
     {
-      "playerDisplay": "Nejc",
+      "playerDisplay": "Sašo",
       "tips": 0,
       "points": 0,
       "pointsInt": -1,
       "winPercent": 0,
       "isBettor": false,
-      "initials": "NBN",
-      "avatarColor": "#e11d48"
+      "initials": "SŠ",
+      "avatarColor": "#2563eb"
     }
   ]
 }
