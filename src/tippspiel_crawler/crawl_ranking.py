@@ -99,22 +99,33 @@ def load_credentials(config_file: Path) -> AuthCredentials:
     return AuthCredentials(email=email, password=password)
 
 
-async def dismiss_cookie_banner(page) -> None:
+async def dismiss_cookie_banner(page) -> bool:
+    """Dismiss the cookie consent banner. Returns True if a banner was closed."""
     labels = [
         "Alle akzeptieren",
         "Akzeptieren",
         "Accept all",
         "Einverstanden",
     ]
+    # Cookie consent is often rendered inside a child iframe (e.g. OneTrust/CMP),
+    # which `page.get_by_role` does not traverse. Check the main frame first, then
+    # fall back to every child frame so the banner can't linger over the login form.
+    frames = [page, *page.frames]
     for label in labels:
-        button = page.get_by_role("button", name=label)
-        if await button.count() > 0:
+        for frame in frames:
+            button = frame.get_by_role("button", name=label)
             try:
-                await button.first.click(timeout=1500)
-                await page.wait_for_timeout(500)
-                return
+                count = await button.count()
             except Exception:
-                continue
+                count = 0
+            if count > 0:
+                try:
+                    await button.first.click(timeout=1500, force=True)
+                    await page.wait_for_timeout(500)
+                    return True
+                except Exception:
+                    continue
+    return False
 
 
 async def dismiss_whats_new_popup(page, timeout_ms: int) -> None:
@@ -131,9 +142,177 @@ async def dismiss_whats_new_popup(page, timeout_ms: int) -> None:
         pass
 
 
-async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
-    await dismiss_cookie_banner(page)
+# Generic close-button selectors for arbitrary pop-ups/modals/dialogs. Matched
+# across the main frame and every child frame so iframes (cookie CMPs, login
+# overlays) are handled too. Order matters: most specific first.
+_CLOSE_SELECTORS = [
+    "[role='dialog'] [aria-label*='close' i]",
+    "[role='dialog'] [aria-label*='schließen' i]",
+    "[aria-modal='true'] [aria-label*='close' i]",
+    "[aria-modal='true'] [aria-label*='schließen' i]",
+    ".popup-close",
+    ".popup .close",
+    ".modal-close",
+    ".modal .close",
+    ".close-btn",
+    "button.close",
+    "button[aria-label*='close' i]",
+    "button[aria-label*='schließen' i]",
+    "button[title*='close' i]",
+    "button[title*='schließen' i]",
+]
+
+
+async def _visible(locator) -> bool:
+    try:
+        return await locator.first.is_visible()
+    except Exception:
+        return False
+
+
+async def _label_text(locator) -> str:
+    try:
+        text = await locator.first.text_content()
+    except Exception:
+        text = None
+    return (text or "").strip().lower()
+
+
+# Survey pop-up CTA that must NEVER be clicked — it opts into a survey instead
+# of closing the pop-up. Matched case-insensitively against button text.
+_SURVEY_CTA_TEXTS = ["zur umfrage", "zur umfrage!", "umfrage"]
+
+
+def _matches_survey_cta(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    return any(t in lowered for t in _SURVEY_CTA_TEXTS)
+
+
+async def _is_survey_cta(locator) -> bool:
+    return _matches_survey_cta(await _label_text(locator))
+
+
+# Selectors for the survey pop-up and its close (X) button. The real markup is:
+#   <div class="popup">
+#     <div class="popup-bg"></div>
+#     <div class="content content--expand">
+#       <div class="close-popup"><em class="ico-close"></em></div>   <!-- the X -->
+#       <div class="wm-survey-popup"> ... "Zur Umfrage" CTA ... </div>
+#     </div>
+#   </div>
+# We click the .close-popup X (upper-right), never the "Zur Umfrage" CTA.
+_SURVEY_POPUP_SELECTOR = ".popup:has(.wm-survey-popup)"
+_SURVEY_CLOSE_SELECTOR = ".close-popup"
+_SURVEY_POPUP_BG_SELECTOR = ".popup-bg"
+
+
+async def _survey_present_frame(frame) -> bool:
+    try:
+        return await frame.locator(_SURVEY_POPUP_SELECTOR).count() > 0
+    except Exception:
+        return False
+
+
+async def dismiss_survey_popup(page, timeout_ms: int) -> None:
+    """Close the survey pop-up via its X button (.close-popup), never the CTA.
+
+    The survey usually renders a moment after the cookie banner closes, so we
+    poll briefly for it to appear before clicking the X. The pop-up lives in the
+    main frame, but we check child frames too just in case.
+    """
+    # Poll for up to ~3s for the survey pop-up to appear.
+    waited = 0
+    appeared = False
+    while waited < 3000:
+        for f in [page, *page.frames]:
+            if await _survey_present_frame(f):
+                appeared = True
+                break
+        if appeared:
+            break
+        await page.wait_for_timeout(250)
+        waited += 250
+    if not appeared:
+        return
+
+    # Click the X close button, then wait for the overlay backdrop to disappear.
+    for _ in range(3):
+        close_btn = page.locator(f"{_SURVEY_POPUP_SELECTOR} {_SURVEY_CLOSE_SELECTOR}")
+        if await close_btn.count() == 0:
+            break
+        try:
+            await close_btn.first.click(timeout=min(timeout_ms, 3000), force=True)
+        except Exception:
+            # Fall back to clicking the icon element directly.
+            try:
+                await page.locator(
+                    f"{_SURVEY_POPUP_SELECTOR} .ico-close"
+                ).first.click(timeout=min(timeout_ms, 3000), force=True)
+            except Exception:
+                break
+        try:
+            await page.locator(_SURVEY_POPUP_BG_SELECTOR).first.wait_for(
+                state="hidden", timeout=3000
+            )
+        except Exception:
+            pass
+        if not await _survey_present_frame(page):
+            return
+
+
+async def dismiss_popups(page, timeout_ms: int) -> None:
+    """Close any arbitrary pop-up/modal/dialog that overlays the page.
+
+    Clicks generic close buttons across the main frame and all child frames, and
+    falls back to Escape for keyboard-dismissible overlays. Loops a few times in
+    case multiple pop-ups are stacked. Safe to call when no pop-up is present.
+
+    Never clicks the survey CTA ("Zur Umfrage") — that is opted out explicitly.
+    """
+    for _ in range(3):
+        closed_any = False
+        for frame in [page, *page.frames]:
+            for selector in _CLOSE_SELECTORS:
+                locator = frame.locator(selector)
+                try:
+                    count = await locator.count()
+                except Exception:
+                    count = 0
+                if count == 0 or not await _visible(locator):
+                    continue
+                # Never click the survey CTA; only real close buttons.
+                if await _is_survey_cta(locator):
+                    continue
+                try:
+                    await locator.first.click(timeout=min(timeout_ms, 2000), force=True)
+                    await page.wait_for_timeout(250)
+                    closed_any = True
+                except Exception:
+                    continue
+        # Escape dismisses overlays without an obvious close button.
+        try:
+            await page.keyboard.press("Escape")
+            await page.wait_for_timeout(200)
+        except Exception:
+            pass
+        if not closed_any:
+            break
+
+
+async def dismiss_overlays(page, timeout_ms: int) -> None:
+    """Clear every known overlay type before interacting with the page."""
+    cookie_closed = await dismiss_cookie_banner(page)
+    # The survey pop-up usually appears right after the cookie banner closes.
+    # Give it a brief moment to render, then close it immediately via its X.
+    if cookie_closed:
+        await page.wait_for_timeout(500)
+    await dismiss_survey_popup(page, timeout_ms)
     await dismiss_whats_new_popup(page, timeout_ms)
+    await dismiss_popups(page, timeout_ms)
+
+
+async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
+    await dismiss_overlays(page, timeout_ms)
     try:
         await page.wait_for_selector("table tbody tr.row", timeout=timeout_ms)
     except Exception as exc:
@@ -147,7 +326,7 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
     max_clicks = 100
     previous_count = await page.locator("table tbody tr.row").count()
     for _ in range(max_clicks):
-        await dismiss_whats_new_popup(page, timeout_ms)
+        await dismiss_overlays(page, timeout_ms)
         load_more = page.locator("div.btn-box button.global-sec-btn")
         if await load_more.count() == 0:
             break
@@ -159,8 +338,8 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
         try:
             await button.click(timeout=timeout_ms)
         except Exception as exc:
-            # A popup can appear after initial table load and block pointer events.
-            await dismiss_whats_new_popup(page, timeout_ms)
+            # A pop-up can appear after initial table load and block pointer events.
+            await dismiss_overlays(page, timeout_ms)
             try:
                 await button.click(timeout=min(timeout_ms, 5000))
             except Exception:
@@ -185,21 +364,31 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
 async def login_with_credentials(page, creds: AuthCredentials, timeout_ms: int) -> None:
     await page.goto("https://tippspiel.laola1.at/profile", wait_until="domcontentloaded", timeout=timeout_ms)
     await page.wait_for_timeout(1500)
-    await dismiss_cookie_banner(page)
+    await dismiss_overlays(page, timeout_ms)
 
     login_frame = next((f for f in page.frames if "login.laola1.at/auth/login" in f.url), None)
     if not login_frame:
         # No login frame typically means the session is already authenticated.
         return
 
-    await login_frame.locator("input[type='email']").fill(creds.email, timeout=timeout_ms)
+    # Wait for the email field to be present, then clear any pop-ups that may
+    # have appeared in the meantime (cookie/survey/what's-new/generic) so the
+    # form is fully unobstructed before we type credentials.
+    email_input = login_frame.locator("input[type='email']")
+    await email_input.wait_for(state="visible", timeout=timeout_ms)
+    await dismiss_overlays(page, timeout_ms)
+
+    await email_input.fill(creds.email, timeout=timeout_ms)
     await login_frame.locator("input[type='password']").fill(creds.password, timeout=timeout_ms)
 
+    # Pop-ups on the parent page may still reappear between fill and submit, so
+    # clear them again and use force=True so an overlay can't block the click.
+    await dismiss_overlays(page, timeout_ms)
     submit = login_frame.locator("button.submit-button")
     if await submit.count() > 0:
-        await submit.first.click(timeout=timeout_ms)
+        await submit.first.click(timeout=timeout_ms, force=True)
     else:
-        await login_frame.locator("button[type='submit']").first.click(timeout=timeout_ms)
+        await login_frame.locator("button[type='submit']").first.click(timeout=timeout_ms, force=True)
 
     # Give the app a moment to update auth state in parent page.
     await page.wait_for_timeout(2500)
