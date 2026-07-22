@@ -43,6 +43,21 @@
     .ios-toggle.active .ios-track { background: #16a34a; }
     .ios-toggle.active .ios-thumb { transform: translateX(22px); }
 
+    .bonus-controls {
+      display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
+      gap: 18px; margin: 0 0 16px;
+    }
+    .bonus-check {
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; user-select: none;
+    }
+    .bonus-check input {
+      width: 16px; height: 16px; accent-color: #0f766e; cursor: pointer;
+    }
+    .bonus-check:has(input:checked) { color: var(--text); }
+    .metric-bonus { background: #e0f2fe; color: #075985; }
+
     .table-card { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08); }
     .table-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px 18px; border-bottom: 1px solid var(--border-soft); }
     .table-head h2 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
@@ -109,6 +124,17 @@
       <p>🥉 3rd place (20%): <strong id="prize3">0.00€</strong></p>
     </div>
 
+    <div class="bonus-controls">
+      <label class="bonus-check">
+        <input id="includeBwinBonus" type="checkbox" />
+        <span>BWIN BONUS</span>
+      </label>
+      <label class="bonus-check">
+        <input id="includeLaolaBonus" type="checkbox" />
+        <span>LAOLA BONUS</span>
+      </label>
+    </div>
+
     <section class="table-card">
       <div class="table-head">
         <h2>Leaderboard</h2>
@@ -123,6 +149,8 @@
               <th>KOCKAR</th>
               <th>TIPS</th>
               <th>POINTS</th>
+              <th>BWIN BONUS</th>
+              <th>LAOLA BONUS</th>
               <th>WIN PERCENTAGE</th>
             </tr>
           </thead>
@@ -142,10 +170,12 @@
 
   <script>
     (() => {
-      const DATA_PATH = "https://raw.githubusercontent.com/timurkulenovic/tippspiel-sr-lju-ranking/main/ljubljana_ranking.json";
+      const DATA_PATH = "ljubljana_ranking.json";
       const toggle = document.getElementById("bettorToggle");
       const labelAll = document.getElementById("toggleLabelAll");
       const labelBettors = document.getElementById("toggleLabelBettors");
+      const includeBwinBonus = document.getElementById("includeBwinBonus");
+      const includeLaolaBonus = document.getElementById("includeLaolaBonus");
       const tbody = document.getElementById("tableBody");
       const officeLabel = document.getElementById("officeLabel");
       const updatedAt = document.getElementById("updatedAt");
@@ -164,26 +194,45 @@
 
       const medalForRank = (rank) => ({ 1: "🥇", 2: "🥈", 3: "🥉" })[rank] || null;
       const fmt = (v) => `${v.toFixed(2)}€`;
+      const num = (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const basePoints = (row) =>
+        num(row.pointsInt) - num(row.bwinBonusPoints) - num(row.laolaBonusPoints);
+
+      const effectivePoints = (row) =>
+        basePoints(row)
+        + (includeBwinBonus.checked ? num(row.bwinBonusPoints) : 0)
+        + (includeLaolaBonus.checked ? num(row.laolaBonusPoints) : 0);
 
       const renderRows = () => {
-        const visible = rows.filter((r) => !bettorsOnly || r.isBettor);
+        const visible = rows
+          .filter((r) => !bettorsOnly || r.isBettor)
+          .map((row) => ({ row, pts: effectivePoints(row) }))
+          .sort((a, b) => b.pts - a.pts || String(a.row.playerDisplay || "").localeCompare(String(b.row.playerDisplay || "")));
+
         let prevPoints = null;
         let currentRank = 1;
-        tbody.innerHTML = visible.map((row, idx) => {
-          const pts = Number(row.pointsInt || 0);
+        tbody.innerHTML = visible.map(({ row, pts }, idx) => {
           if (idx === 0) currentRank = 1;
           else if (prevPoints !== null && pts < prevPoints) currentRank = idx + 1;
           prevPoints = pts;
 
           const medal = medalForRank(currentRank);
           const rankCell = medal ? `<span class="medal" title="Rank ${currentRank}">${medal}</span>` : String(currentRank);
+          const bwinBonus = num(row.bwinBonusPoints);
+          const laolaBonus = num(row.laolaBonusPoints);
           return `
             <tr class="rank-row ${idx % 2 ? "rank-row-alt" : ""}" data-bettor="${row.isBettor ? 1 : 0}" data-points="${pts}">
               <td class="rank-cell" data-rank-cell="1">${rankCell}</td>
               <td><div class="player-cell"><span class="avatar" style="background:${row.avatarColor}">${row.initials}</span><span>${row.playerDisplay}</span></div></td>
               <td><span class="bettor-flag">${row.isBettor ? "💸" : ""}</span></td>
               <td>${row.tips ?? "&mdash;"}</td>
-              <td><span class="metric metric-points">${row.points ?? "&mdash;"}</span></td>
+              <td><span class="metric metric-points">${pts}</span></td>
+              <td><span class="metric metric-bonus">${bwinBonus}</span></td>
+              <td><span class="metric metric-bonus">${laolaBonus}</span></td>
               <td><span class="metric metric-win">${row.winPercent ?? "&mdash;"}</span></td>
             </tr>
           `;
@@ -214,10 +263,17 @@
         renderRows();
       };
 
+      const onBonusToggle = () => renderRows();
+
       toggle.addEventListener("click", () => {
         bettorsOnly = !bettorsOnly;
         renderToggle();
       });
+
+      includeBwinBonus.addEventListener("change", onBonusToggle);
+      includeLaolaBonus.addEventListener("change", onBonusToggle);
+      includeBwinBonus.addEventListener("input", onBonusToggle);
+      includeLaolaBonus.addEventListener("input", onBonusToggle);
 
       const requestUrl = `${DATA_PATH}?cb=${Date.now()}`;
 

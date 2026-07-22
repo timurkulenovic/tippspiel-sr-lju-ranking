@@ -207,12 +207,16 @@ def prepare_report_payload(
         player_display = _first_name(player) or player
         points_int = to_int(row.get("points"))
         points_int = points_int if points_int is not None else -1
+        bwin_bonus = to_int(row.get("bwinBonusPoints")) or 0
+        laola_bonus = to_int(row.get("laolaBonusPoints")) or 0
         prepared_rows.append(
             {
                 "playerDisplay": player_display,
                 "tips": row.get("tips"),
                 "points": row.get("points"),
                 "pointsInt": points_int,
+                "bwinBonusPoints": bwin_bonus,
+                "laolaBonusPoints": laola_bonus,
                 "winPercent": row.get("winPercent"),
                 "isBettor": is_bettor,
                 "initials": _initials(player),

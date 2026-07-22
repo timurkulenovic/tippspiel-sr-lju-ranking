@@ -40,7 +40,15 @@ password = "secret"
 
     settings = load_export_settings(config)
     rows = [
-        {"player": "Luka Ferlan", "office": "Ljubljana", "tips": 10, "points": 50, "winPercent": 20},
+        {
+            "player": "Luka Ferlan",
+            "office": "Ljubljana",
+            "tips": 10,
+            "points": 50,
+            "winPercent": 20,
+            "bwinBonusPoints": 5,
+            "laolaBonusPoints": 10,
+        },
         {"player": "Alice Smith", "office": "Ljubljana", "tips": 11, "points": 40, "winPercent": 30},
     ]
 
@@ -58,6 +66,10 @@ password = "secret"
     assert payload["rows"][0]["isBettor"] is True
     assert payload["rows"][0]["initials"] == "LF"
     assert payload["rows"][0]["pointsInt"] == 50
+    assert payload["rows"][0]["bwinBonusPoints"] == 5
+    assert payload["rows"][0]["laolaBonusPoints"] == 10
+    assert payload["rows"][1]["bwinBonusPoints"] == 0
+    assert payload["rows"][1]["laolaBonusPoints"] == 0
 
 
 def test_prepare_payload_missing_bettors_list(tmp_path: Path) -> None:

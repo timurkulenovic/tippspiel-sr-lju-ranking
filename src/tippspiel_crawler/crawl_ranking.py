@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import tomllib
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -13,7 +14,13 @@ from pathlib import Path
 from crawlee.crawlers import PlaywrightCrawler
 from crawlee.crawlers._playwright._playwright_crawling_context import PlaywrightCrawlingContext
 
-from tippspiel_crawler.extractors import parse_ranking_row
+from tippspiel_crawler.extractors import (
+    parse_bonus_statistics_payload,
+    parse_ranking_row,
+    to_int,
+)
+
+TIPPSPIEL_ORIGIN = "https://tippspiel.laola1.at"
 
 
 @dataclass
@@ -311,7 +318,72 @@ async def dismiss_overlays(page, timeout_ms: int) -> None:
     await dismiss_popups(page, timeout_ms)
 
 
-async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
+def parse_group_id(url: str) -> int | None:
+    match = re.search(r"/gruppe/(\d+)", url)
+    if not match:
+        return None
+    return to_int(match.group(1))
+
+
+def statistics_api_url(group_id: int, user_id: int) -> str:
+    return f"{TIPPSPIEL_ORIGIN}/api/tippspiel/groups/{group_id}/user/{user_id}/statistics"
+
+
+def tipps_page_url(group_id: int, user_id: int) -> str:
+    return f"{TIPPSPIEL_ORIGIN}/gruppe/{group_id}/{user_id}/tipps"
+
+
+async def capture_statistics_authorization_header(
+    page,
+    group_id: int,
+    user_id: int,
+    *,
+    timeout_ms: int,
+) -> str:
+    """Capture the Authorization header the SPA uses for statistics API calls."""
+    captured: dict[str, str] = {}
+
+    async def on_request(request) -> None:
+        if f"/groups/{group_id}/user/" in request.url and "/statistics" in request.url:
+            auth = request.headers.get("authorization")
+            if auth:
+                captured["authorization"] = auth
+
+    page.on("request", on_request)
+    try:
+        await page.goto(tipps_page_url(group_id, user_id), wait_until="domcontentloaded", timeout=timeout_ms)
+        await dismiss_overlays(page, timeout_ms)
+        for _ in range(40):
+            if "authorization" in captured:
+                return captured["authorization"]
+            await page.wait_for_timeout(250)
+    finally:
+        page.remove_listener("request", on_request)
+
+    raise RuntimeError(
+        "Failed to capture statistics authorization header. "
+        "Login may have failed or the session expired."
+    )
+
+
+async def fetch_statistics_payload(
+    page,
+    group_id: int,
+    user_id: int,
+    *,
+    headers: dict[str, str],
+) -> dict | None:
+    response = await page.request.get(
+        statistics_api_url(group_id, user_id),
+        headers=headers,
+    )
+    if not response.ok:
+        return None
+    body = await response.json()
+    return body if isinstance(body, dict) else None
+
+
+async def extract_rows(page, timeout_ms: int) -> list[dict[str, object]]:
     await dismiss_overlays(page, timeout_ms)
     try:
         await page.wait_for_selector("table tbody tr.row", timeout=timeout_ms)
@@ -355,10 +427,77 @@ async def extract_rows(page, timeout_ms: int) -> list[list[str]]:
         "table tbody tr.row",
         """
         (rows) => rows
-          .map((tr) => Array.from(tr.querySelectorAll('td')).map((td) => (td.textContent || '').trim()))
-          .filter((cells) => cells.length >= 6 && (cells[1] || '').trim().length > 0)
+          .map((tr) => ({
+            playerId: tr.getAttribute('data-id') || tr.dataset.id || null,
+            cells: Array.from(tr.querySelectorAll('td')).map((td) => (td.textContent || '').trim()),
+          }))
+          .filter((row) => row.cells.length >= 6 && (row.cells[1] || '').trim().length > 0)
         """,
     )
+
+
+async def fetch_bonus_points_for_users(
+    page,
+    group_id: int,
+    user_ids: list[int],
+    *,
+    timeout_ms: int,
+    concurrency: int = 8,
+) -> dict[int, tuple[int, int]]:
+    """Fetch BWIN/LAOLA bonus points from each player's statistics endpoint."""
+    if not user_ids:
+        return {}
+
+    authorization = await capture_statistics_authorization_header(
+        page,
+        group_id,
+        user_ids[0],
+        timeout_ms=timeout_ms,
+    )
+    headers = {"authorization": authorization}
+    semaphore = asyncio.Semaphore(max(1, min(concurrency, len(user_ids))))
+    bonus_by_user: dict[int, tuple[int, int]] = {}
+    failures = 0
+
+    async def fetch_one(user_id: int) -> None:
+        nonlocal failures
+        async with semaphore:
+            try:
+                body = await fetch_statistics_payload(
+                    page,
+                    group_id,
+                    user_id,
+                    headers=headers,
+                )
+                if body is None:
+                    failures += 1
+                    bonus_by_user[user_id] = (0, 0)
+                    return
+                bonus_by_user[user_id] = parse_bonus_statistics_payload(body)
+            except Exception:
+                failures += 1
+                bonus_by_user[user_id] = (0, 0)
+
+    await asyncio.gather(*(fetch_one(user_id) for user_id in user_ids))
+
+    if failures == len(user_ids):
+        raise RuntimeError(
+            "Failed to fetch bonus points for all players. "
+            "Check login credentials or rerun with --headed."
+        )
+
+    return bonus_by_user
+
+
+def attach_bonus_points(
+    ranking: list[dict[str, int | str | None]],
+    bonus_by_user: dict[int, tuple[int, int]],
+) -> None:
+    for row in ranking:
+        player_id = to_int(row.get("playerId"))
+        bwin, laola = bonus_by_user.get(player_id, (0, 0)) if player_id is not None else (0, 0)
+        row["bwinBonusPoints"] = bwin
+        row["laolaBonusPoints"] = laola
 
 
 async def login_with_credentials(page, creds: AuthCredentials, timeout_ms: int) -> None:
@@ -417,12 +556,16 @@ async def run_crawl(config: CrawlConfig) -> dict:
     if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
         launch_options["args"] = ["--no-sandbox", "--disable-setuid-sandbox"]
 
+    # Bonus enrichment issues one authenticated API call per player; allow enough time
+    # for large groups (hundreds of users) after the ranking table is expanded.
+    request_handler_timeout_ms = max(config.timeout_ms + 15000, 900000)
+
     crawler = PlaywrightCrawler(
         headless=config.headless,
         max_requests_per_crawl=1,
         max_request_retries=0,
         navigation_timeout=timedelta(milliseconds=config.timeout_ms),
-        request_handler_timeout=timedelta(milliseconds=config.timeout_ms + 15000),
+        request_handler_timeout=timedelta(milliseconds=request_handler_timeout_ms),
         browser_launch_options=launch_options,
         browser_new_context_options=context_options,
     )
@@ -435,7 +578,37 @@ async def run_crawl(config: CrawlConfig) -> dict:
                 await context.page.goto(config.url, wait_until="domcontentloaded", timeout=config.timeout_ms)
 
             rows = await extract_rows(context.page, config.timeout_ms)
-            parsed = [parse_ranking_row(cells) for cells in rows]
+            parsed = []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                cells = row.get("cells") or []
+                if not isinstance(cells, list):
+                    continue
+                parsed.append(
+                    parse_ranking_row(
+                        [str(cell) for cell in cells],
+                        player_id=row.get("playerId") if isinstance(row.get("playerId"), (int, str)) else None,
+                    )
+                )
+
+            group_id = parse_group_id(context.request.url) or parse_group_id(config.url)
+            if group_id is not None:
+                user_ids = sorted(
+                    {
+                        player_id
+                        for player_id in (to_int(row.get("playerId")) for row in parsed)
+                        if player_id is not None
+                    }
+                )
+                bonus_by_user = await fetch_bonus_points_for_users(
+                    context.page,
+                    group_id,
+                    user_ids,
+                    timeout_ms=config.timeout_ms,
+                )
+                attach_bonus_points(parsed, bonus_by_user)
+
             result.update(
                 {
                     "sourceUrl": context.request.url,
